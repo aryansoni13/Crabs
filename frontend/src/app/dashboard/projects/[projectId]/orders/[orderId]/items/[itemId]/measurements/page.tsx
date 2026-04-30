@@ -33,6 +33,7 @@ import PipingSpoolStatusMeasurementSheet from "./piping-spool-status-sheet";
 import PipingInsulationMeasurementSheet from "./piping-insulation-sheet";
 import EquipmentInsulationMeasurementSheet from "./equipment-insulation-sheet";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE } from "@/lib/api-config";
 
 type Item = {
   id: string;
@@ -63,7 +64,6 @@ type MeasurementRow = {
 
 type SaveStatus = "idle" | "unsaved" | "saving" | "saved" | "error";
 
-const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api`;
 const AUTOSAVE_DELAY = 1500;
 
 export default function MeasurementSheetPage() {
@@ -842,7 +842,7 @@ export default function MeasurementSheetPage() {
             <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
             <div className="flex flex-col">
               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Unit Rate</span>
-              <span className="text-sm font-extrabold text-slate-900 dark:text-white">â‚¹{item?.rate?.toLocaleString("en-IN") || "0"}</span>
+              <span className="text-sm font-extrabold text-slate-900 dark:text-white">{"\u20B9"}{item?.rate?.toLocaleString("en-IN") || "0"}</span>
             </div>
             <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
             <div className="flex flex-col">
@@ -852,7 +852,7 @@ export default function MeasurementSheetPage() {
             <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
             <div className="flex flex-col">
               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Amount</span>
-              <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">â‚¹{totalAmount.toLocaleString("en-IN")}</span>
+              <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">{"\u20B9"}{totalAmount.toLocaleString("en-IN")}</span>
             </div>
           </div>
         </div>
@@ -865,7 +865,7 @@ export default function MeasurementSheetPage() {
         </div>
       </div>
 
-      {/* â”€â”€â”€ Work Entries Section â”€â”€â”€ */}
+      {/* Work Entries Section */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm mb-6">
         {/* Section Header */}
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
@@ -876,7 +876,7 @@ export default function MeasurementSheetPage() {
                 <SaveStatusIndicator />
               </div>
               <p className="text-[11px] text-slate-400 font-bold mt-0.5">
-                Auto saves as you type â€¢ Press Enter to save instantly â€¢ Esc to close
+                Auto saves as you type | Press Enter to save instantly | Esc to close
               </p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -1083,7 +1083,7 @@ export default function MeasurementSheetPage() {
                 );
               })}
 
-              {/* New Row (inline add with autosave â€” stays open after save) */}
+              {/* New Row (inline add with autosave - stays open after save) */}
               {newRowActive && (
                 <tr
                   ref={newRowContainerRef}
@@ -1105,7 +1105,7 @@ export default function MeasurementSheetPage() {
             <tfoot>
               <tr className="bg-slate-50 dark:bg-slate-800/30 border-t-2 border-slate-200 dark:border-slate-700 font-bold">
                 <td className="px-4 py-3"></td>
-                <td className="px-4 py-3 text-sm font-extrabold text-slate-900 dark:text-white">Subtotal Â· All Areas</td>
+                <td className="px-4 py-3 text-sm font-extrabold text-slate-900 dark:text-white">Subtotal - All Areas</td>
                 {isStructure && (<><td className="px-4 py-3"></td><td className="px-4 py-3"></td><td className="px-4 py-3"></td><td className="px-4 py-3"></td><td className="px-4 py-3"></td><td className="px-4 py-3"></td></>)}
                 {isOthers && (<><td className="px-4 py-3"></td><td className="px-4 py-3"></td><td className="px-4 py-3"></td></>)}
                 <td className="px-4 py-3 text-sm font-extrabold text-right text-slate-900 dark:text-white font-mono">

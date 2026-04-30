@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { createClient } from '@supabase/supabase-js';
 
 const router = Router();
@@ -8,7 +8,20 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-router.post('/login', async (req, res) => {
+/**
+ * Helper to resolve the frontend URL from environment.
+ * Render's `property: host` gives a bare hostname (no protocol),
+ * so we prepend https:// if missing, and strip trailing slashes.
+ */
+const getFrontendUrl = (): string => {
+  let url = process.env.FRONTEND_URL || 'http://localhost:3000';
+  if (!url.startsWith('http')) {
+    url = `https://${url}`;
+  }
+  return url.replace(/\/+$/, '');
+};
+
+router.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   
@@ -16,7 +29,7 @@ router.post('/login', async (req, res) => {
   return res.json({ session: data.session, user: data.user });
 });
 
-router.post('/signup', async (req, res) => {
+router.post('/signup', async (req: Request, res: Response) => {
   const { email, password, fullName, companyName, mobileNumber, gstNumber } = req.body;
   
   const { data, error } = await supabase.auth.signUp({
@@ -36,9 +49,13 @@ router.post('/signup', async (req, res) => {
   return res.json({ session: data.session, user: data.user });
 });
 
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', async (req: Request, res: Response) => {
   const { email } = req.body;
-  const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+  let backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+  if (!backendUrl.startsWith('http')) {
+    backendUrl = `https://${backendUrl}`;
+  }
+  backendUrl = backendUrl.replace(/\/+$/, '');
   
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${backendUrl}/api/auth/callback?next=/reset-password`,
@@ -48,9 +65,10 @@ router.post('/forgot-password', async (req, res) => {
   return res.json({ success: true });
 });
 
-router.get('/callback', async (req, res) => {
+router.get('/callback', async (req: Request, res: Response) => {
   const { code, next, token_hash, type } = req.query;
   const redirectPath = String(next || '/reset-password');
+  const frontendUrl = getFrontendUrl();
 
   if (token_hash && type) {
     const { data, error } = await supabase.auth.verifyOtp({
@@ -58,23 +76,24 @@ router.get('/callback', async (req, res) => {
       token_hash: String(token_hash)
     });
     if (!error && data.session) {
-      return res.redirect(`http://localhost:3001${redirectPath}?access_token=${data.session.access_token}`);
+      return res.redirect(`${frontendUrl}${redirectPath}?access_token=${data.session.access_token}`);
     }
-    return res.redirect(`http://localhost:3001/login?error=Invalid+Link`);
+    return res.redirect(`${frontendUrl}/login?error=Invalid+Link`);
   }
 
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(String(code));
     if (!error && data.session) {
-      return res.redirect(`http://localhost:3001${redirectPath}?access_token=${data.session.access_token}`);
+      return res.redirect(`${frontendUrl}${redirectPath}?access_token=${data.session.access_token}`);
     }
-    return res.redirect(`http://localhost:3001/login?error=Token+Exchange+Failed`);
+    return res.redirect(`${frontendUrl}/login?error=Token+Exchange+Failed`);
   }
 
-  return res.redirect(`http://localhost:3001/login?error=Invalid+Link+Parameters`);
+  return res.redirect(`${frontendUrl}/login?error=Invalid+Link+Parameters`);
 });
 
-router.post('/update-password', async (req, res) => {
+// Support both /update-password and /reset-password (frontend uses /reset-password)
+async function handlePasswordUpdate(req: Request, res: Response) {
   const { password } = req.body;
   const authHeader = req.headers.authorization;
   
@@ -91,6 +110,9 @@ router.post('/update-password', async (req, res) => {
   
   if (error) return res.status(400).json({ error: error.message });
   return res.json({ success: true });
-});
+}
+
+router.post('/update-password', handlePasswordUpdate);
+router.post('/reset-password', handlePasswordUpdate);
 
 export default router;
