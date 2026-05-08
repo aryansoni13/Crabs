@@ -107,6 +107,7 @@ router.post('/project/:projectId', authenticateUser, async (req: AuthenticatedRe
         {
           project_id: projectId,
           order_code,
+          order_number: order_code,
           title,
           description: description || ''
         }
@@ -189,7 +190,10 @@ router.put('/:orderId', authenticateUser, async (req: AuthenticatedRequest, res:
     }
 
     const updatePayload: Record<string, any> = {};
-    if (order_code !== undefined) updatePayload.order_code = order_code;
+    if (order_code !== undefined) {
+      updatePayload.order_code = order_code;
+      updatePayload.order_number = order_code;
+    }
     if (title !== undefined) updatePayload.title = title;
     if (description !== undefined) updatePayload.description = description;
 
