@@ -48,6 +48,14 @@ app.use(cors({
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     // Allow requests with no origin (mobile apps, curl, server-side)
     if (!origin) return callback(null, true);
+    
+    // Allow localhost
+    if (origin.startsWith('http://localhost:')) return callback(null, true);
+    
+    // Allow any onrender.com domains
+    if (origin.endsWith('.onrender.com')) return callback(null, true);
+    
+    // Check specific allowed origins
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
