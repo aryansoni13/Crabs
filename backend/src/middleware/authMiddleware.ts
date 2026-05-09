@@ -1,12 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
-import fetch from 'cross-fetch';
 
 const supabaseUrl = (process.env.SUPABASE_URL || '').trim();
 const supabaseKey = (process.env.SUPABASE_ANON_KEY || '').trim();
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  global: { fetch }
-});
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface AuthenticatedRequest extends Request {
   user?: any;
@@ -30,14 +27,16 @@ export const authenticateUser = async (
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
-      res.status(401).json({ error: 'Unauthorized: Invalid token' });
+      console.error("Auth Middleware: getUser failed:", error);
+      res.status(401).json({ error: 'Unauthorized: Invalid token', details: error });
       return;
     }
 
     req.user = user;
     req.token = token;
     next();
-  } catch (err) {
-    res.status(500).json({ error: 'Internal server error during authentication' });
+  } catch (err: any) {
+    console.error("Auth Middleware: exception caught:", err);
+    res.status(500).json({ error: 'Internal server error during authentication', msg: err.message });
   }
 };

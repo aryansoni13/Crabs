@@ -8,6 +8,7 @@ import orderRoutes from './routes/orders';
 import itemRoutes from './routes/items';
 import measurementRoutes from './routes/measurements';
 import billRoutes from './routes/bills';
+import itemGroupRoutes from './routes/item-groups';
 
 const app = express();
 // Render (and other proxies): correct client IP / secure cookies if we add them later
@@ -67,6 +68,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/measurements', measurementRoutes);
 app.use('/api/bills', billRoutes);
+app.use('/api/item-groups', itemGroupRoutes);
 
 // ── Health Check ─────────────────────────────────────────────────────
 app.get('/health', (_req: Request, res: Response) => {

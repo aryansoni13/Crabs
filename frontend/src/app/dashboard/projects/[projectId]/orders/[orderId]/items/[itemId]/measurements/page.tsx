@@ -187,7 +187,16 @@ export default function MeasurementSheetPage() {
       const itemsRes = await fetch(`${API_BASE}/items/order/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!itemsRes.ok) throw new Error("Failed to load item API");
+      if (!itemsRes.ok) {
+        if (itemsRes.status === 401) {
+          localStorage.removeItem("session");
+          router.push("/login");
+          return;
+        }
+        const errText = await itemsRes.text();
+        console.error("Items API error:", itemsRes.status, errText);
+        throw new Error(`Failed to load item API: ${itemsRes.status} ${errText}`);
+      }
       const iData = await itemsRes.json();
       const itemsList = iData.items || [];
       const currentItem = itemsList.find((i: any) => i.id === itemId);

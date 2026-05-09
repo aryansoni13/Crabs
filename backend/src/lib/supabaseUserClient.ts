@@ -1,5 +1,4 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import fetch from 'cross-fetch';
 
 /**
  * Supabase client that forwards the end-user JWT so PostgREST sets auth.uid()
@@ -19,7 +18,6 @@ export function createUserSupabaseClient(accessToken: string): SupabaseClient {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-      fetch,
     },
   });
 }

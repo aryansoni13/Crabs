@@ -281,7 +281,14 @@ export default function EquipmentInsulationMeasurementSheet({
         headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
       });
-      if (!itemsRes.ok) throw new Error("Failed to load items");
+      if (!itemsRes.ok) {
+        if (itemsRes.status === 401) {
+          localStorage.removeItem("session");
+          window.location.href = "/login";
+          return;
+        }
+        throw new Error("Failed to load items");
+      }
       const itemsData = await itemsRes.json();
       const items = itemsData.items || [];
       const currentItem = items.find((entry: any) => entry.id === itemId);

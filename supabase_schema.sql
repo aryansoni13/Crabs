@@ -118,3 +118,45 @@ CREATE POLICY "projects_update_own" ON public.projects FOR UPDATE
 CREATE POLICY "projects_delete_own" ON public.projects FOR DELETE USING (auth.uid() = owner_id);
 
 -- Note: In a production app you'd add RLS matching project ownership for all tables (Orders, Items, Measurements, etc).
+
+-- Item Groups Table (For RA Bills & Grouping items)
+CREATE TABLE IF NOT EXISTS public.item_groups (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
+  department TEXT NOT NULL,
+  name TEXT NOT NULL,
+  is_active BOOLEAN DEFAULT false,
+  selected_item_ids UUID[] DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Item Milestones Table
+CREATE TABLE IF NOT EXISTS public.item_milestones (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  item_id UUID REFERENCES public.items(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  percentage DECIMAL(5,2) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- RLS for Item Groups & Milestones
+ALTER TABLE public.item_groups ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "item_groups_select" ON public.item_groups;
+CREATE POLICY "item_groups_select" ON public.item_groups FOR SELECT USING (true);
+DROP POLICY IF EXISTS "item_groups_insert" ON public.item_groups;
+CREATE POLICY "item_groups_insert" ON public.item_groups FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "item_groups_update" ON public.item_groups;
+CREATE POLICY "item_groups_update" ON public.item_groups FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "item_groups_delete" ON public.item_groups;
+CREATE POLICY "item_groups_delete" ON public.item_groups FOR DELETE USING (true);
+
+ALTER TABLE public.item_milestones ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "item_milestones_select" ON public.item_milestones;
+CREATE POLICY "item_milestones_select" ON public.item_milestones FOR SELECT USING (true);
+DROP POLICY IF EXISTS "item_milestones_insert" ON public.item_milestones;
+CREATE POLICY "item_milestones_insert" ON public.item_milestones FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "item_milestones_update" ON public.item_milestones;
+CREATE POLICY "item_milestones_update" ON public.item_milestones FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "item_milestones_delete" ON public.item_milestones;
+CREATE POLICY "item_milestones_delete" ON public.item_milestones FOR DELETE USING (true);
