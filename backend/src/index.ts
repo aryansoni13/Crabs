@@ -31,6 +31,7 @@ const allowedOrigins: string[] = [
   'http://localhost:3001',
   'http://localhost:8080',
   'https://crabs-frontend.onrender.com',
+  'https://crabs-frontend-wmprn.onrender.com',
 ];
 
 // Add the deployed frontend URL (set via Render env var or manually)
