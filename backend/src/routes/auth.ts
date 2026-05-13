@@ -34,7 +34,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
 router.post('/signup', async (req: Request, res: Response) => {
   const { email, password, fullName, companyName, mobileNumber, gstNumber } = req.body;
-  
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,

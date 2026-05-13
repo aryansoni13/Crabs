@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, Phone, FileText, CheckCircle2 } from "lucide-react";
+import { Building2, Phone, FileText } from "lucide-react";
 import { API_URL } from "@/lib/api-config";
 import { ThemeToggle } from "@/components/theme-toggle";
 
